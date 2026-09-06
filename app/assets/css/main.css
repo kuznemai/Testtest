@@ -1,0 +1,325 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------- tokens */
+:root {
+  --iz-bg: #05070d;
+  --iz-surface: rgba(255, 255, 255, 0.035);
+  --iz-border: rgba(255, 255, 255, 0.09);
+  --iz-border-soft: rgba(255, 255, 255, 0.055);
+  --iz-accent: #8fc0ee;
+  --iz-accent-strong: #4da3ff;
+  --iz-text: #e7eef6;
+  --iz-muted: #8ea0b5;
+
+  color-scheme: dark;
+}
+
+html {
+  overflow-x: clip;
+}
+
+body {
+  overflow-x: clip;
+  background-color: var(--iz-bg);
+  color: var(--iz-text);
+  font-family: "Poppins", "Roboto", system-ui, sans-serif;
+}
+
+:focus-visible {
+  outline: 2px solid var(--iz-accent);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------- primitives */
+.iz-wrap {
+  width: 100%;
+  max-width: 1520px;
+  margin: 0 auto;
+  padding-inline: clamp(1.25rem, 4vw, 4.5rem);
+}
+
+/* Narrower column for reading-heavy pages (cart, checkout, profile). */
+.iz-wrap--narrow {
+  max-width: 1180px;
+}
+
+.iz-section {
+  position: relative;
+  border-top: 1px solid var(--iz-border-soft);
+  padding-block: clamp(3.5rem, 6.5vw, 7rem);
+}
+
+.iz-section--tint {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.022), rgba(255, 255, 255, 0));
+}
+
+.iz-page {
+  padding-block: clamp(2rem, 4vw, 3.5rem) clamp(3rem, 6vw, 5rem);
+}
+
+.iz-split {
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  align-items: center;
+  gap: clamp(2.25rem, 4vw, 5rem);
+}
+
+.iz-eyebrow {
+  color: var(--iz-accent);
+  font-size: clamp(0.66rem, 0.82vw, 0.78rem);
+  font-weight: 400;
+  letter-spacing: 0.32em;
+  line-height: 1.8;
+  text-transform: uppercase;
+}
+
+.iz-h1 {
+  color: #fff;
+  font-size: clamp(1.75rem, 3.2vw, 2.6rem);
+  font-weight: 600;
+  line-height: 1.14;
+  letter-spacing: -0.015em;
+}
+
+.iz-h2 {
+  margin-top: clamp(0.85rem, 1.5vw, 1.35rem);
+  color: #fff;
+  font-size: clamp(1.85rem, 3.2vw, 3rem);
+  font-weight: 700;
+  line-height: 1.13;
+  letter-spacing: -0.015em;
+}
+
+.iz-lead {
+  max-width: 36ch;
+  margin-top: clamp(1rem, 1.8vw, 1.5rem);
+  color: var(--iz-muted);
+  font-size: clamp(0.92rem, 1.1vw, 1.05rem);
+  font-weight: 300;
+  line-height: 1.7;
+}
+
+.iz-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  /* 44px minimum touch target */
+  min-height: 2.75rem;
+  padding: 0.75rem 1.6rem;
+  border-radius: 999px;
+  font-size: clamp(0.88rem, 1.02vw, 0.98rem);
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.iz-btn svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+}
+
+.iz-btn:disabled,
+.iz-btn[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.iz-btn--solid {
+  background: #fff;
+  color: #05080f;
+}
+
+.iz-btn--solid:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px rgb(120 180 255 / 0.3);
+}
+
+.iz-btn--ghost {
+  border: 1px solid rgb(255 255 255 / 0.22);
+  color: #fff;
+}
+
+.iz-btn--ghost:not(:disabled):hover {
+  border-color: rgb(143 192 238 / 0.7);
+  background: rgb(143 192 238 / 0.08);
+}
+
+.iz-btn--quiet {
+  padding-inline: 1rem;
+  color: var(--iz-muted);
+}
+
+.iz-btn--quiet:hover {
+  color: #fff;
+}
+
+.iz-btn--danger {
+  border: 1px solid rgb(248 113 113 / 0.3);
+  color: #fca5a5;
+}
+
+.iz-btn--danger:not(:disabled):hover {
+  border-color: rgb(248 113 113 / 0.6);
+  background: rgb(248 113 113 / 0.08);
+}
+
+.iz-btn--block {
+  width: 100%;
+}
+
+.iz-card {
+  padding: clamp(1.15rem, 1.9vw, 1.7rem);
+  border: 1px solid var(--iz-border);
+  border-radius: 1rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.038), rgba(255, 255, 255, 0.012));
+}
+
+.iz-card__icon {
+  width: clamp(1.6rem, 2.1vw, 1.95rem);
+  height: clamp(1.6rem, 2.1vw, 1.95rem);
+  color: var(--iz-accent);
+}
+
+.iz-card__title {
+  margin-top: 0.9rem;
+  color: #fff;
+  font-size: clamp(0.92rem, 1.1vw, 1.02rem);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.iz-card__text {
+  margin-top: 0.45rem;
+  color: var(--iz-muted);
+  font-size: clamp(0.8rem, 0.95vw, 0.9rem);
+  font-weight: 300;
+  line-height: 1.55;
+}
+
+.iz-vertical {
+  color: var(--iz-accent);
+  font-size: clamp(0.66rem, 0.82vw, 0.78rem);
+  letter-spacing: 0.32em;
+  line-height: 2.5;
+  text-align: right;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ forms */
+.iz-label {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: var(--iz-muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.iz-input {
+  width: 100%;
+  min-height: 2.875rem;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--iz-border);
+  border-radius: 0.7rem;
+  background: rgb(255 255 255 / 0.03);
+  color: #fff;
+  font-size: 0.95rem;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.iz-input::placeholder {
+  color: rgb(255 255 255 / 0.28);
+}
+
+.iz-input:hover {
+  border-color: rgb(255 255 255 / 0.18);
+}
+
+.iz-input:focus {
+  border-color: var(--iz-accent);
+  outline: none;
+  background: rgb(255 255 255 / 0.05);
+}
+
+.iz-input[aria-invalid="true"] {
+  border-color: #f87171;
+}
+
+.iz-error {
+  margin-top: 0.35rem;
+  color: #fca5a5;
+  font-size: 0.8rem;
+}
+
+/* ------------------------------------------------------------ animations */
+.fade-in {
+  animation: iz-fade-in 0.5s ease-out both;
+}
+
+@keyframes iz-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.iz-shimmer {
+  position: relative;
+  overflow: hidden;
+  background: rgb(255 255 255 / 0.05);
+}
+
+.iz-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.07), transparent);
+  animation: iz-shimmer 1.35s ease-in-out infinite;
+}
+
+@keyframes iz-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ------------------------------------------------------------ responsive */
+@media (max-width: 1024px) {
+  .iz-split {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.25rem;
+  }
+
+  .iz-lead {
+    max-width: 56ch;
+  }
+
+  .iz-vertical {
+    display: none;
+  }
+}
