@@ -2,7 +2,7 @@ import type { Product, ProductListItem } from "#shared/types";
 
 export type ProductSort = "title" | "price" | "-price";
 
-export interface ProductQuery {
+export interface ProductQuery extends Record<string, unknown> {
   search?: string;
   sort?: ProductSort;
 }

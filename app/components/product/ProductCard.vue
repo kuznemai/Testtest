@@ -13,7 +13,7 @@ const isSaved = computed(() => favorites.has(props.product.id));
   <article class="card">
     <NuxtLink :to="`/product/${product.slug}`" class="card__media">
       <img
-        :src="product.image"
+        :src="assetUrl(product.image)"
         :alt="product.title"
         width="240"
         height="320"

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { priceCart, toListItem, variantLabel } from "~~/server/utils/catalog";
-import { db } from "~~/server/utils/db";
+import { priceCart, toListItem, variantLabel } from "#shared/mock/pricing";
+import { createMockState } from "#shared/mock/state";
+
+const db = createMockState();
 
 const product = db.products.find((candidate) => candidate.slug === "iz-one-pro")!;
 const inStock = product.variants.find((variant) => variant.stock > 0)!;
@@ -8,7 +10,7 @@ const outOfStock = product.variants.find((variant) => variant.stock === 0)!;
 
 describe("priceCart", () => {
   it("multiplies unit price by quantity", () => {
-    const preview = priceCart([{ productId: product.id, variantId: inStock.id, quantity: 3 }]);
+    const preview = priceCart(db, [{ productId: product.id, variantId: inStock.id, quantity: 3 }]);
 
     expect(preview.lines).toHaveLength(1);
     expect(preview.lines[0]!.lineTotalCents).toBe(inStock.priceCents * 3);
@@ -16,8 +18,8 @@ describe("priceCart", () => {
   });
 
   it("adds the delivery price only when there is something to ship", () => {
-    const withItems = priceCart([{ productId: product.id, variantId: inStock.id, quantity: 1 }], "standard");
-    const empty = priceCart([], "standard");
+    const withItems = priceCart(db, [{ productId: product.id, variantId: inStock.id, quantity: 1 }], "standard");
+    const empty = priceCart(db, [], "standard");
 
     expect(withItems.totals.deliveryCents).toBe(1900);
     expect(withItems.totals.totalCents).toBe(withItems.totals.subtotalCents + 1900);
@@ -26,7 +28,7 @@ describe("priceCart", () => {
   });
 
   it("charges nothing for an out-of-stock line and flags it", () => {
-    const preview = priceCart([{ productId: product.id, variantId: outOfStock.id, quantity: 2 }]);
+    const preview = priceCart(db, [{ productId: product.id, variantId: outOfStock.id, quantity: 2 }]);
 
     expect(preview.unavailableCount).toBe(1);
     expect(preview.lines[0]!.available).toBe(false);
@@ -35,15 +37,15 @@ describe("priceCart", () => {
   });
 
   it("drops lines that no longer exist in the catalogue", () => {
-    const preview = priceCart([{ productId: "p_gone", variantId: "v_gone", quantity: 1 }]);
+    const preview = priceCart(db, [{ productId: "p_gone", variantId: "v_gone", quantity: 1 }]);
 
     expect(preview.lines).toHaveLength(0);
     expect(preview.totals.subtotalCents).toBe(0);
   });
 
   it("clamps quantities to a sane range", () => {
-    const tooMany = priceCart([{ productId: product.id, variantId: inStock.id, quantity: 999 }]);
-    const tooFew = priceCart([{ productId: product.id, variantId: inStock.id, quantity: 0 }]);
+    const tooMany = priceCart(db, [{ productId: product.id, variantId: inStock.id, quantity: 999 }]);
+    const tooFew = priceCart(db, [{ productId: product.id, variantId: inStock.id, quantity: 0 }]);
 
     expect(tooMany.lines[0]!.quantity).toBe(10);
     expect(tooFew.lines[0]!.quantity).toBe(1);

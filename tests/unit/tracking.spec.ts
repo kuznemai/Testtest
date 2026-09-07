@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import type { Order } from "#shared/types";
-import { buildTracking } from "~~/server/utils/tracking";
-import { db } from "~~/server/utils/db";
+import { buildTracking } from "#shared/mock/tracking";
+import { createMockState } from "#shared/mock/state";
+
+const db = createMockState();
 
 function orderWithStatus(status: Order["status"]): Order {
   const base = db.orders[0]!;

@@ -1,4 +1,4 @@
-import type { Order, OrderStatus, OrderTracking, TrackingEvent } from "#shared/types";
+import type { Order, OrderStatus, OrderTracking, TrackingEvent } from "../types";
 
 /** Fulfilment steps a healthy order walks through, in order. */
 const FLOW: OrderStatus[] = ["created", "paid", "processing", "shipped", "delivered"];

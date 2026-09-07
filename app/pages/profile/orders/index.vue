@@ -46,7 +46,7 @@ useSeo({ title: "My orders", description: "Every order you placed with IZ, with 
         <li v-for="order in orders" :key="order.id">
           <NuxtLink :to="`/profile/orders/${order.id}`" class="order-row" :data-testid="`order-${order.number}`">
             <div class="order-row__previews" aria-hidden="true">
-              <img v-for="(image, index) in order.previewImages" :key="index" :src="image" alt="" width="32" height="42" loading="lazy" >
+              <img v-for="(image, index) in order.previewImages" :key="index" :src="assetUrl(image)" alt="" width="32" height="42" loading="lazy" >
             </div>
 
             <div class="min-w-0 flex-1">

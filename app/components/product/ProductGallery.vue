@@ -17,7 +17,7 @@ watch(
   <div class="gallery">
     <div class="gallery__stage">
       <img
-        :src="activeImage"
+        :src="assetUrl(activeImage)"
         :alt="title"
         width="520"
         height="390"
@@ -38,7 +38,7 @@ watch(
         :aria-label="`Image ${index + 1} of ${images.length}`"
         @click="activeIndex = index"
       >
-        <img :src="image" alt="" width="72" height="72" loading="lazy" >
+        <img :src="assetUrl(image)" alt="" width="72" height="72" loading="lazy" >
       </button>
     </div>
   </div>

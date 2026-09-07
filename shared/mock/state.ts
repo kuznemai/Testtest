@@ -1,55 +1,46 @@
-import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
-import type { Order, OrderItem, Payment, Product, User } from "#shared/types";
-import { products } from "../data/products";
+import type { Order, OrderItem, Payment, Product } from "../types";
+import { products } from "./products";
 
 /**
- * In-memory mock database.
+ * State for the mock backend.
  *
- * It lives for as long as the Nuxt server process does: the seeded demo account
- * and its orders are always there, anything created at runtime is lost on restart.
- * Replacing this module (plus the handlers in `server/api`) with calls to the real
- * backend is the whole migration path.
+ * It runs in two places: inside Nitro during `npm run dev`/`npm run build`, and inside
+ * the browser for the static GitHub Pages demo, which has no server at all. Keeping it
+ * free of Node APIs is what makes the second case possible.
  */
 
-export interface StoredUser extends User {
-  passwordHash: string;
+export interface MockUser {
+  id: string;
+  email: string;
+  name: string;
+  phone: string | null;
+  createdAt: string;
+  /**
+   * Plain text on purpose: this is a fixture, not authentication. The real backend
+   * hashes passwords and this field disappears with the rest of `shared/mock`.
+   */
+  password: string;
 }
 
-/** Order rows carry the owner id, which never leaves the server. */
-export type OrderRow = Order & { userId: string };
+export type MockOrder = Order & { userId: string };
 
-interface Database {
+export interface MockState {
   products: Product[];
-  users: StoredUser[];
-  /** session token -> user id */
-  sessions: Map<string, string>;
-  orders: OrderRow[];
+  users: MockUser[];
+  orders: MockOrder[];
   payments: Payment[];
   orderSequence: number;
 }
 
-export function hashPassword(password: string, salt = randomBytes(16).toString("hex")): string {
-  return `${salt}:${scryptSync(password, salt, 32).toString("hex")}`;
-}
-
-export function verifyPassword(password: string, stored: string): boolean {
-  const [salt, hash] = stored.split(":");
-  if (!salt || !hash) return false;
-  const expected = Buffer.from(hash, "hex");
-  const actual = scryptSync(password, salt, 32);
-  return expected.length === actual.length && timingSafeEqual(expected, actual);
-}
+let idCounter = 0;
 
 export function createId(prefix: string): string {
-  return `${prefix}_${randomBytes(8).toString("hex")}`;
+  idCounter += 1;
+  return `${prefix}_${Date.now().toString(36)}${idCounter.toString(36)}${Math.random().toString(36).slice(2, 8)}`;
 }
 
 export function daysAgo(days: number): string {
   return new Date(Date.now() - days * 86_400_000).toISOString();
-}
-
-export function daysAhead(days: number): string {
-  return new Date(Date.now() + days * 86_400_000).toISOString();
 }
 
 const DEMO_ADDRESS = {
@@ -62,7 +53,7 @@ const DEMO_ADDRESS = {
   postalCode: "00000",
 };
 
-function seedOrderItem(product: Product, variantIndex: number, quantity: number): OrderItem {
+function seedItem(product: Product, variantIndex: number, quantity: number): OrderItem {
   const variant = product.variants[variantIndex]!;
   return {
     productId: product.id,
@@ -77,17 +68,18 @@ function seedOrderItem(product: Product, variantIndex: number, quantity: number)
   };
 }
 
-function seed(): Database {
-  const demoUser: StoredUser = {
+export function createMockState(): MockState {
+  const demoUser: MockUser = {
     id: "u_demo",
     email: "demo@iz.example",
     name: "Marina Kuznetsova",
     phone: "+15550100123",
     createdAt: daysAgo(120),
-    passwordHash: hashPassword("demo1234"),
+    password: "demo1234",
   };
 
-  const [onePro, one, vault] = products as [Product, Product, Product];
+  const catalogue = products.map((product) => structuredClone(product));
+  const [onePro, one, vault] = catalogue as [Product, Product, Product];
 
   const buildOrder = (
     seq: number,
@@ -96,7 +88,7 @@ function seed(): Database {
     createdAt: string,
     items: OrderItem[],
     deliveryCents: number,
-  ): OrderRow => {
+  ): MockOrder => {
     const subtotalCents = items.reduce((sum, item) => sum + item.lineTotalCents, 0);
     return {
       id: `o_seed_${seq}`,
@@ -132,11 +124,11 @@ function seed(): Database {
     };
   };
 
-  const orders: OrderRow[] = [
-    buildOrder(1, "awaiting_payment", "pending", daysAgo(1), [seedOrderItem(onePro, 1, 1)], 0),
-    buildOrder(2, "cancelled", "cancelled", daysAgo(5), [seedOrderItem(vault, 1, 1)], 1900),
-    buildOrder(3, "shipped", "paid", daysAgo(9), [seedOrderItem(onePro, 0, 1), seedOrderItem(vault, 0, 1)], 1900),
-    buildOrder(4, "delivered", "paid", daysAgo(38), [seedOrderItem(one, 1, 1)], 1900),
+  const orders: MockOrder[] = [
+    buildOrder(1, "awaiting_payment", "pending", daysAgo(1), [seedItem(onePro, 1, 1)], 0),
+    buildOrder(2, "cancelled", "cancelled", daysAgo(5), [seedItem(vault, 1, 1)], 1900),
+    buildOrder(3, "shipped", "paid", daysAgo(9), [seedItem(onePro, 0, 1), seedItem(vault, 0, 1)], 1900),
+    buildOrder(4, "delivered", "paid", daysAgo(38), [seedItem(one, 1, 1)], 1900),
   ];
 
   const payments: Payment[] = [
@@ -154,17 +146,5 @@ function seed(): Database {
     },
   ];
 
-  return {
-    products,
-    users: [demoUser],
-    sessions: new Map(),
-    orders,
-    payments,
-    orderSequence: 4,
-  };
+  return { products: catalogue, users: [demoUser], orders, payments, orderSequence: 4 };
 }
-
-// Survives Nitro's dev-time module reloads.
-const globalScope = globalThis as typeof globalThis & { __izStoreDb__?: Database };
-
-export const db: Database = (globalScope.__izStoreDb__ ??= seed());

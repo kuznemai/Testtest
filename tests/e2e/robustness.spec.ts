@@ -49,6 +49,9 @@ test("wrong credentials show an error instead of signing in", async ({ page }) =
 });
 
 test("a failing catalogue request shows a retry state", async ({ page }) => {
+  // The static demo answers from the browser, so there is no request to intercept.
+  test.skip(process.env.STATIC_DEMO === "true", "needs a network API");
+
   // Start elsewhere so the catalogue is fetched by the browser rather than during SSR.
   await page.goto("/contact");
   await page.route("**/api/products*", (route) => route.fulfill({ status: 500, body: "{}" }));

@@ -7,8 +7,8 @@ import type {
   Product,
   ProductListItem,
   ProductVariant,
-} from "#shared/types";
-import { db } from "./db";
+} from "../types";
+import type { MockState } from "./state";
 
 export const DELIVERY_OPTIONS: DeliveryOption[] = [
   {
@@ -64,8 +64,8 @@ interface ResolvedVariant {
   variant: ProductVariant;
 }
 
-export function resolveVariant(productId: string, variantId: string): ResolvedVariant | null {
-  const product = db.products.find((candidate) => candidate.id === productId);
+export function resolveVariant(state: MockState, productId: string, variantId: string): ResolvedVariant | null {
+  const product = state.products.find((candidate) => candidate.id === productId);
   const variant = product?.variants.find((candidate) => candidate.id === variantId);
   return product && variant ? { product, variant } : null;
 }
@@ -74,11 +74,15 @@ export function resolveVariant(productId: string, variantId: string): ResolvedVa
  * Prices a cart. The client only ever sends ids and quantities — every amount the
  * shopper sees is computed here, which is also how the real backend must work.
  */
-export function priceCart(items: CartItemInput[], deliveryMethodId?: DeliveryMethodId): CartPreview {
+export function priceCart(
+  state: MockState,
+  items: CartItemInput[],
+  deliveryMethodId?: DeliveryMethodId,
+): CartPreview {
   const lines: CartLine[] = [];
 
   for (const item of items) {
-    const resolved = resolveVariant(item.productId, item.variantId);
+    const resolved = resolveVariant(state, item.productId, item.variantId);
     if (!resolved) continue;
 
     const { product, variant } = resolved;

@@ -13,7 +13,7 @@ const emit = defineEmits<{
 <template>
   <li class="line" :class="{ 'line--unavailable': !line.available }">
     <NuxtLink :to="`/product/${line.slug}`" class="line__media">
-      <img :src="line.image" :alt="line.title" width="72" height="96" loading="lazy" >
+      <img :src="assetUrl(line.image)" :alt="line.title" width="72" height="96" loading="lazy" >
     </NuxtLink>
 
     <div class="line__body">

@@ -98,7 +98,7 @@ useSeo({
         <h2 class="iz-label">Items</h2>
         <ul class="mt-3 flex flex-col gap-3">
           <li v-for="item in order.items" :key="item.variantId" class="flex items-center gap-4 rounded-xl border border-[var(--iz-border-soft)] bg-white/2 p-3">
-            <img :src="item.image" :alt="item.title" width="48" height="64" loading="lazy" class="h-16 w-12 rounded-lg bg-black object-contain" >
+            <img :src="assetUrl(item.image)" :alt="item.title" width="48" height="64" loading="lazy" class="h-16 w-12 rounded-lg bg-black object-contain" >
             <div class="min-w-0 flex-1">
               <p class="truncate text-sm font-medium text-white">{{ item.title }}</p>
               <p class="text-xs text-[var(--iz-muted)]">{{ item.variantLabel }} · {{ item.quantity }} pc</p>

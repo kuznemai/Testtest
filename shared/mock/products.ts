@@ -1,4 +1,4 @@
-import type { Product } from "#shared/types";
+import type { Product } from "../types";
 
 const OS_DESCRIPTION =
   "Runs IZ OS: verified boot, per-app network permissions and an encrypted-by-default storage layer. No telemetry, no vendor account required.";
